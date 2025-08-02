@@ -1,0 +1,83 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>News App</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1 class="logo">🗞️ NEWS<span>HUB</span></h1>
+
+
+    <form id="searchForm">
+      <input type="text" id="searchInput" placeholder="Search news..." />
+      <button type="submit">Search</button>
+    </form>
+
+    <ul id="newsList"></ul>
+  </div>
+
+  <script>
+    const newsList = document.getElementById('newsList');
+    const searchForm = document.getElementById('searchForm');
+    const searchInput = document.getElementById('searchInput');
+
+    // 🔄 Fetch news function
+    async function fetchNews(query = '') {
+      try {
+        let url = '/fetch-news';
+        if (query) {
+          url += `?q=${encodeURIComponent(query)}`;
+        }
+
+        const res = await fetch(url);
+        const data = await res.json();
+          // check for empty result
+        newsList.innerHTML = ''; // clear old
+        if (!data || data.length === 0) {
+          newsList.innerHTML = '<li>No news found.</li>';
+          return;
+        }
+
+           // now process each news item
+        data.forEach(news => {
+          const li = document.createElement('li');
+          const title = news.title || 'No title';
+          const description = news.description || 'No description';
+          const link = news.link || '#';
+
+          li.innerHTML = `
+            <div class="card">
+              <h3>${title}</h3>
+              <p>${description}</p>
+               ${link !== '#' ? `<a href="${link}" target="_blank">Read more →</a>` : ''}
+              
+            </div>
+          `;
+          newsList.appendChild(li);
+        });
+      } catch (err) {
+        console.error(err);
+        newsList.innerHTML = '<li>Something went wrong.</li>';
+      }
+    }
+
+    // 🧠 For page load
+    fetchNews();
+
+    // 🔍 For search
+    searchForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const query = searchInput.value.trim();
+      fetchNews(query);
+    });
+  </script>
+  <footer>
+  <p>© 2025 NEWSHUB | Made with ❤️ by Luffy-404</p>
+</footer>
+</body>
+</html>
+
